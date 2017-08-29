@@ -1,6 +1,6 @@
 # == Schema Information
 #
-# Table name: countries 
+# Table name: countries
 #
 #  name        :string       not null, primary key
 #  continent   :string
@@ -31,6 +31,7 @@ end
 def larger_than_russia
   # List each country name where the population is larger than 'Russia'.
   execute(<<-SQL)
+    SELECT name FROM countries WHERE population > (SELECT population FROM countries WHERE name = 'Russia');
   SQL
 end
 
@@ -38,6 +39,7 @@ def richer_than_england
   # Show the countries in Europe with a per capita GDP greater than
   # 'United Kingdom'.
   execute(<<-SQL)
+    SELECT name FROM countries WHERE gdp/population > (SELECT gdp/population FROM countries WHERE name = 'United Kingdom') AND continent = 'Europe';
   SQL
 end
 
@@ -45,6 +47,7 @@ def neighbors_of_b_countries
   # List the name and continent of countries in the continents containing
   # 'Belize', 'Belgium'.
   execute(<<-SQL)
+    SELECT name, continent FROM countries WHERE continent IN (SELECT continent FROM countries WHERE name IN ('Belize', 'Belgium'))
   SQL
 end
 
@@ -52,6 +55,9 @@ def population_constraint
   # Which country has a population that is more than Canada but less than
   # Poland? Show the name and the population.
   execute(<<-SQL)
+    SELECT name, population FROM countries WHERE
+      population > (SELECT population FROM countries WHERE name = 'Canada')
+    AND population < (SELECT population FROM countries WHERE name = 'Poland')
   SQL
 end
 
@@ -67,6 +73,7 @@ def highest_gdp
   # Which countries have a GDP greater than every country in Europe? (Give the
   # name only. Some countries may have NULL gdp values)
   execute(<<-SQL)
+    SELECT name FROM countries WHERE gdp > ALL(SELECT gdp FROM countries WHERE gdp is not null AND continent = 'Europe');
   SQL
 end
 
@@ -78,6 +85,7 @@ def largest_in_continent
   # Find the largest country (by area) in each continent. Show the continent,
   # name, and area.
   execute(<<-SQL)
+    SELECT continent, name, area FROM countries WHERE area IN (SELECT max(area) FROM countries WHERE area is not null GROUP BY continent);
   SQL
 end
 
@@ -88,6 +96,7 @@ def sparse_continents
   # Find each country that belongs to a continent where all populations are
   # less than 25,000,000. Show name, continent and population.
   execute(<<-SQL)
+    SELECT name, continent, population FROM countries where continent NOT IN (SELECT continent FROM countries WHERE population >= 25000000);
   SQL
 end
 
@@ -95,5 +104,6 @@ def large_neighbors
   # Some countries have populations more than three times that of any of their
   # neighbors (in the same continent). Give the countries and continents.
   execute(<<-SQL)
+    SELECT name, continent FROM countries first where population > 3 * (SELECT avg(population) FROM countries second where first.continent = second.continent GROUP BY continent);
   SQL
 end
