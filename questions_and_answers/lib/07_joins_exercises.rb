@@ -154,5 +154,16 @@ end
 def colleagues_of_garfunkel
   # List all the people who have worked with 'Art Garfunkel'.
   execute(<<-SQL)
+    SELECT a.name
+    FROM actors a
+    INNER JOIN castings c ON (a.id = c.actor_id)
+    WHERE c.movie_id IN (
+      -- find all movie_id's of movies Garfunkel has been in
+      SELECT c.movie_id
+      FROM castings c
+      INNER JOIN actors garf ON (garf.id = c.actor_id)
+      WHERE garf.name = 'Art Garfunkel'
+    )
+    AND a.name <> 'Art Garfunkel';
   SQL
 end

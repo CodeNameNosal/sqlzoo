@@ -167,18 +167,13 @@ describe "SELECT within SELECT" do
     end
   end
 
-  # Is this correct?
-  #    select population from countries where name = 'Turkey';    and
-  #    select population from countries where name = 'Turkey';    are both higher than
-  #    select 3 * avg(population) from countries where continent = 'Europe';
-  #
-  # describe "large_neighbors" do
-  #   it "selects countries with much higher populations than their neighbors" do
-  #     expect(large_neighbors).to contain_exactly(
-  #       ["Brazil", "South America"],
-  #       ["China", "Asia-Pacific"],
-  #       ["India", "South Asia"]
-  #     )
-  #   end
-  # end
+  describe "large_neighbors" do
+    it "selects countries with much higher populations than their neighbors" do
+      expect(large_neighbors).to contain_exactly(
+        ["Brazil", "South America"],
+        ["China", "Asia-Pacific"],
+        ["India", "South Asia"]
+      )
+    end
+  end
 end
