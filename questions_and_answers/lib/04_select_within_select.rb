@@ -104,6 +104,24 @@ def large_neighbors
   # Some countries have populations more than three times that of any of their
   # neighbors (in the same continent). Give the countries and continents.
   execute(<<-SQL)
-    SELECT name, continent FROM countries first where population > 3 * (SELECT avg(population) FROM countries second where first.continent = second.continent GROUP BY continent);
+    -- SELECT name, continent
+    -- FROM countries first
+    -- WHERE population > 3 * (
+    --   SELECT avg(population)
+    --   FROM countries second
+    --   WHERE first.continent = second.continent
+    --   GROUP BY continent
+    -- );
+    -- My initial way above. I was thinking that it had wanted 3 times the average population of the continent.
+
+
+    SELECT first.name, first.continent
+    FROM countries first
+    WHERE first.population > ALL (
+      SELECT second.population * 3
+      FROM countries second
+      WHERE first.continent = second.continent
+      AND first.name <> second.name
+    );
   SQL
 end
